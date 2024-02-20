@@ -10,17 +10,30 @@ resource "digitalocean_ssh_key" "default" {
   public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCslNKgLyoOrGDerz9pA4a4Mc+EquVzX52AkJZz+ecFCYZ4XQjcg2BK1P9xYfWzzl33fHow6pV/C6QC3Fgjw7txUeH7iQ5FjRVIlxiltfYJH4RvvtXcjqjk8uVDhEcw7bINVKVIS856Qn9jPwnHIhJtRJe9emE7YsJRmNSOtggYk/MaV2Ayx+9mcYnA/9SBy45FPHjMlxntoOkKqBThWE7Tjym44UNf44G8fd+kmNYzGw9T5IKpH1E1wMR+32QJBobX6d7k39jJe8lgHdsUYMbeJOFPKgbWlnx9VbkZh+seMSjhroTgniHjUl8wBFgw0YnhJ/90MgJJL4BToxu9PVnH ondrejsika"
 }
 
+resource "digitalocean_ssh_key" "default-ecdsa" {
+  name       = "default-ecdsa"
+  public_key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHtI4BsjxWHmRB3EzyQDSX5idgyjD67XL4WmIjz+pcG6 ondrej@sika-mac"
+}
+
+
 data "digitalocean_vpc" "default" {
   region = "fra1"
 }
 
 resource "digitalocean_droplet" "example" {
+  lifecycle {
+    ignore_changes = [
+      ssh_keys,
+    ]
+  }
+
   image  = local.IMAGE_DEBIAN_11
   name   = "example"
   region = "fra1"
   size   = local.SIZE_MEDIUM
   ssh_keys = [
     digitalocean_ssh_key.default.id,
+    digitalocean_ssh_key.default-ecdsa.id,
   ]
   vpc_uuid = data.digitalocean_vpc.default.id
 }
@@ -36,6 +49,10 @@ locals {
 }
 
 resource "digitalocean_database_cluster" "example" {
+  lifecycle {
+    prevent_destroy = true
+  }
+
   name       = local.db_name
   engine     = "pg"
   version    = "15"
@@ -128,4 +145,22 @@ EOF
 
 output "nginx2" {
   value = digitalocean_droplet.nginx2.ipv4_address
+}
+
+
+resource "digitalocean_vpc" "foo" {
+  name        = "example-foo"
+  region      = "fra1"
+  ip_range    = "10.200.1.0/24"
+  description = "created-at=${timestamp()}"
+
+  lifecycle {
+    ignore_changes = [
+      description,
+    ]
+  }
+}
+
+output "vpc_foo_desc" {
+  value = digitalocean_vpc.foo.description
 }
