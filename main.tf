@@ -187,6 +187,7 @@ locals {
   vms = {
     foo = {}
     bar = {}
+    baz = {}
   }
 }
 
