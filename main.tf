@@ -212,3 +212,12 @@ output "fqdns" {
 output "price" {
   value = module.vm["bar"].droplet.price_monthly
 }
+
+
+module "vm-xxx" {
+  source = "git::https://gitlab.sikademo.com/demo-group/terraform-module-vm.git?ref=master"
+
+  name      = "xxx"
+  ssh_keys  = local.ssh_keys
+  domain_id = digitalocean_domain.default.id
+}
