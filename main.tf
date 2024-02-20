@@ -164,3 +164,18 @@ resource "digitalocean_vpc" "foo" {
 output "vpc_foo_desc" {
   value = digitalocean_vpc.foo.description
 }
+
+resource "digitalocean_domain" "default" {
+  name = "do-2024-02-20-0.sikademo.com"
+}
+
+resource "digitalocean_record" "nginx2" {
+  domain = digitalocean_domain.default.id
+  type   = "A"
+  name   = "nginx2"
+  value  = digitalocean_droplet.nginx2.ipv4_address
+}
+
+output "see" {
+  value = "http://${digitalocean_record.nginx2.fqdn}"
+}
