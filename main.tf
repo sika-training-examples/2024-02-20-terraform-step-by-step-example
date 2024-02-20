@@ -29,8 +29,14 @@ output "ip" {
   value = digitalocean_droplet.example.ipv4_address
 }
 
+locals {
+  db_prefix = "example"
+  db_suffix = "pg"
+  db_name   = "${local.db_prefix}-hello-${local.db_suffix}"
+}
+
 resource "digitalocean_database_cluster" "example" {
-  name       = "example"
+  name       = local.db_name
   engine     = "pg"
   version    = "15"
   size       = "db-s-1vcpu-2gb"
