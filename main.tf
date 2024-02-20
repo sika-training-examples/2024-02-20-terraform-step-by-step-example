@@ -188,6 +188,7 @@ locals {
     foo = {}
     bar = {}
     baz = {}
+    aaa = {}
   }
 }
 
