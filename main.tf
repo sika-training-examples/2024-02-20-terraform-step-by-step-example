@@ -64,3 +64,34 @@ resource "digitalocean_vpc" "example" {
   region   = "fra1"
   ip_range = "10.250.${each.key + 1}.0/24"
 }
+
+resource "digitalocean_droplet" "nginx" {
+  image  = local.IMAGE_DEBIAN_11
+  name   = "nginx"
+  region = "fra1"
+  size   = local.SIZE_MEDIUM
+  ssh_keys = [
+    digitalocean_ssh_key.default.id,
+  ]
+  connection {
+    type  = "ssh"
+    user  = "root"
+    host  = self.ipv4_address
+    agent = true
+  }
+  provisioner "remote-exec" {
+    inline = [
+      "apt-get update",
+      "apt-get install -y nginx",
+    ]
+  }
+  provisioner "file" {
+    content     = "<h1>Hello World from Terraform Provisioner!</h1>"
+    destination = "/var/www/html/index.html"
+  }
+  vpc_uuid = data.digitalocean_vpc.default.id
+}
+
+output "nginx" {
+  value = digitalocean_droplet.nginx.ipv4_address
+}
