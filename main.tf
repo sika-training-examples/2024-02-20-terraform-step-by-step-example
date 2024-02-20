@@ -184,31 +184,29 @@ locals {
   ssh_keys = [
     digitalocean_ssh_key.default.id,
   ]
+  vms = {
+    foo = {}
+    bar = {}
+  }
 }
 
-module "vm--foo" {
+module "vm" {
+  for_each = local.vms
+
   source = "./modules/vm"
 
-  name      = "foo"
-  ssh_keys  = local.ssh_keys
-  domain_id = digitalocean_domain.default.id
-}
-
-module "vm--bar" {
-  source = "./modules/vm"
-
-  name      = "bar"
+  name      = each.key
   ssh_keys  = local.ssh_keys
   domain_id = digitalocean_domain.default.id
 }
 
 output "fqdns" {
   value = {
-    foo = module.vm--foo.fqdn
-    bar = module.vm--bar.fqdn
+    for k, v in module.vm :
+    k => module.vm[k].fqdn
   }
 }
 
 output "price" {
-  value = module.vm--bar.droplet.price_monthly
+  value = module.vm["bar"].droplet.price_monthly
 }
