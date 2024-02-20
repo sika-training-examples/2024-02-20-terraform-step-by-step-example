@@ -179,3 +179,36 @@ resource "digitalocean_record" "nginx2" {
 output "see" {
   value = "http://${digitalocean_record.nginx2.fqdn}"
 }
+
+locals {
+  ssh_keys = [
+    digitalocean_ssh_key.default.id,
+  ]
+}
+
+module "vm--foo" {
+  source = "./modules/vm"
+
+  name      = "foo"
+  ssh_keys  = local.ssh_keys
+  domain_id = digitalocean_domain.default.id
+}
+
+module "vm--bar" {
+  source = "./modules/vm"
+
+  name      = "bar"
+  ssh_keys  = local.ssh_keys
+  domain_id = digitalocean_domain.default.id
+}
+
+output "fqdns" {
+  value = {
+    foo = module.vm--foo.fqdn
+    bar = module.vm--bar.fqdn
+  }
+}
+
+output "price" {
+  value = module.vm--bar.droplet.price_monthly
+}
