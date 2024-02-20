@@ -1,6 +1,8 @@
 locals {
   IMAGE_DEBIAN_11 = "debian-11-x64"
+  IMAGE_DEBIAN_12 = "debian-12-x64"
   SIZE_SMALL      = "s-1vcpu-1gb"
+  SIZE_MEDIUM     = "s-2vcpu-2gb"
 }
 
 resource "digitalocean_ssh_key" "default" {
@@ -12,7 +14,7 @@ resource "digitalocean_droplet" "example" {
   image  = local.IMAGE_DEBIAN_11
   name   = "example"
   region = "fra1"
-  size   = local.SIZE_SMALL
+  size   = local.SIZE_MEDIUM
   ssh_keys = [
     digitalocean_ssh_key.default.id,
   ]
