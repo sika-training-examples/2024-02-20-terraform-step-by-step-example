@@ -48,3 +48,19 @@ output "example_db_uri" {
   value     = digitalocean_database_cluster.example.uri
   sensitive = true
 }
+
+
+resource "digitalocean_vpc" "example" {
+  for_each = {
+    "1" = {
+      suffix = "foo"
+    }
+    "3" = {
+      suffix = "bar"
+    }
+  }
+
+  name     = "example-${each.key + 1}-${each.value.suffix}"
+  region   = "fra1"
+  ip_range = "10.250.${each.key + 1}.0/24"
+}
